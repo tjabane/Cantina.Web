@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Handlers
 {
-    public class GetMenuQueryHandler : IRequestHandler<GetMenuQuery, Result<List<MenuItemView>>>
+    public class GetMenuQueryHandler : IRequestHandler<GetMenuQuery, Result<List<MenuItem>>>
     {
         private readonly ILogger<GetMenuQueryHandler> _logger;
         private readonly IMenuItemRepository _menuItemRepository;
@@ -21,7 +21,7 @@ namespace Cantina.Core.UseCase.Handlers
             _logger = logger;
             _menuItemRepository = menuItemRepository;
         }
-        public async Task<Result<List<MenuItemView>>> Handle(GetMenuQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<MenuItem>>> Handle(GetMenuQuery request, CancellationToken cancellationToken)
         {
             try {
                 var response = await _menuItemRepository.GetAllMenuItemsAsync();

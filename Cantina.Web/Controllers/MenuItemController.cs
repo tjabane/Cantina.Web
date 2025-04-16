@@ -21,5 +21,13 @@ namespace Cantina.Web.Controllers
             return Ok(menuResponse.Value);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateAsync([FromBody] MenuItem menuItem)
+        {
+            var createResponse = await _mediator.Send(new CreateMenuItemCommand(menuItem));
+            if (createResponse.IsFailed)
+                return BadRequest(new { Message = createResponse.Errors });
+            return CreatedAtAction(nameof(CreateAsync), menuItem);
+        }
     }
 }

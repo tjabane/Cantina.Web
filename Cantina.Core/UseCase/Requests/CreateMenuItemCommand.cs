@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Requests
 {
-    public class GetMenuQuery: IRequest<Result<List<MenuItem>>> 
+    public class CreateMenuItemCommand(MenuItem menuItem) : IRequest<Result<MenuItem>>
     {
-        public GetMenuQuery() {}
+        private readonly MenuItem _menuItem = menuItem;
+        public MenuItem MenuItem => _menuItem;
     }
 }
