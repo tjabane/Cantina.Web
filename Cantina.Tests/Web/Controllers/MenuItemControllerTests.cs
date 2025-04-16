@@ -3,6 +3,7 @@ using Cantina.Core.Interface;
 using Cantina.Core.UseCase.Handlers;
 using Cantina.Web.Controllers;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Shouldly;
@@ -21,20 +22,57 @@ namespace Cantina.Tests.Web.Controllers
         {
             _serviceDescriptors = new ServiceCollection();
             _serviceDescriptors.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetMenuQueryHandler).Assembly));
+            _serviceDescriptors.AddLogging();
         }
 
         [Fact]
-        public async Task GetAllShouldReturnMenuItemsWhenRepositotyIsCalledAsync()
+        public async Task GetAllShouldReturnMenuItemsWhenTheresDataAsync()
+        {
+            var menuRepo = new Mock<IMenuItemRepository>();
+            menuRepo.Setup(repo => repo.GetAllMenuItemsAsync()).ReturnsAsync(GetMenuItems());
+            var mediator = CreateMediator(menuRepo);
+            var menuItemController = new MenuItemController(mediator);
+
+            var actionResult = await menuItemController.GetAllAsync();
+
+            actionResult.ShouldNotBeNull();
+
+            var okResult = actionResult as OkObjectResult;
+            okResult.ShouldNotBeNull();
+
+            var menuItems = okResult.Value as List<MenuItemView>;
+            menuItems.ShouldNotBeNull();
+            menuItems.Count.ShouldBe(2);
+        }
+
+        [Fact]
+        public async Task GetAllShouldReturnNotFoundWhenNoMenuItemsAsync()
         {
             var menuRepo = new Mock<IMenuItemRepository>();
             menuRepo.Setup(repo => repo.GetAllMenuItemsAsync()).ReturnsAsync([]);
             var mediator = CreateMediator(menuRepo);
             var menuItemController = new MenuItemController(mediator);
 
-            var results = await menuItemController.GetAllAsync();
+            var actionResult = await menuItemController.GetAllAsync();
 
-            results.ShouldNotBeNull();
-            menuRepo.Verify(repo => repo.GetAllMenuItemsAsync(), Times.AtLeastOnce);
+            actionResult.ShouldNotBeNull();
+            var notFoundResult = actionResult as NotFoundObjectResult;
+            notFoundResult.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public async Task GetAllShouldReturnInternalServerErrorWhenExceptionAsync()
+        {
+            var menuRepo = new Mock<IMenuItemRepository>();
+            menuRepo.Setup(repo => repo.GetAllMenuItemsAsync()).ThrowsAsync(new Exception("Test exception"));
+            var mediator = CreateMediator(menuRepo);
+            var menuItemController = new MenuItemController(mediator);
+
+            var actionResult = await menuItemController.GetAllAsync();
+
+            actionResult.ShouldNotBeNull();
+            var notFoundResult = actionResult as NotFoundObjectResult;
+            notFoundResult.ShouldNotBeNull();
         }
 
         private IMediator CreateMediator(Mock<IMenuItemRepository> menuItemRepository)
@@ -44,5 +82,23 @@ namespace Cantina.Tests.Web.Controllers
             return serviceProvider.GetRequiredService<IMediator>();
         }
 
+        private static List<MenuItemView> GetMenuItems()
+        {
+            return
+                [
+                    new() {
+                        Id = 1,
+                        Name = "Taco",
+                        Description = "Delicious taco",
+                        Price = 2.99m
+                    },
+                    new() {
+                        Id = 2,
+                        Name = "Burrito",
+                        Description = "Yummy burrito",
+                        Price = 5.99m
+                    }
+                ];
+        }
     }
 }

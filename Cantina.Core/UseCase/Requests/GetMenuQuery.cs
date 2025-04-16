@@ -1,4 +1,5 @@
 ﻿using Cantina.Core.Dto;
+using FluentResults;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Requests
 {
-    public class GetMenuQuery: IRequest<List<MenuItem>>
+    public class GetMenuQuery: IRequest<Result<List<MenuItemView>>> 
     {
         public GetMenuQuery() {}
     }

@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.Dto
 {
-    public class MenuItem
+    public class MenuItemView
     {
-        // Dishes & drinks must have a name, description, price, and image.
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string Image { get; set; }
-        public bool IsDrink { get; set; }
     }
 }

@@ -16,7 +16,9 @@ namespace Cantina.Web.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var menuResponse = await _mediator.Send(new GetMenuQuery());
-            return Ok(menuResponse);
+            if (menuResponse.IsFailed)
+                return NotFound(new { Message = menuResponse.Errors });
+            return Ok(menuResponse.Value);
         }
 
     }
