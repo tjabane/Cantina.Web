@@ -10,8 +10,6 @@ namespace Cantina.Core.UseCase.Requests
 {
     public class GetMenuQuery: IRequest<List<MenuItem>>
     {
-        public GetMenuQuery()
-        {
-        }
+        public GetMenuQuery() {}
     }
 }
