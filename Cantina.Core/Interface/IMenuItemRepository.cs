@@ -9,10 +9,10 @@ namespace Cantina.Core.Interface
 {
     public interface IMenuItemRepository
     {
-        Task<List<MenuItem>> GetAllMenuItemsAsync();
-        Task<MenuItem> GetItemByIdAsync(int id);
-        Task AddMenuItemAsync(MenuItem menuItem);
-        Task UpdateMenuItemAsync(MenuItem menuItem);
-        Task DeleteMenuItemAsync(int id);
+        Task<List<MenuItem>> GetAllAsync();
+        Task<MenuItem> GetByIdAsync(int id);
+        Task AddAsync(MenuItem menuItem);
+        Task UpdateAsync(MenuItem menuItem);
+        Task DeleteAsync(int id);
     }
 }

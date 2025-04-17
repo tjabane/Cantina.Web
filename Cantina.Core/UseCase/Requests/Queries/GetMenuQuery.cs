@@ -7,10 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cantina.Core.UseCase.Requests
+namespace Cantina.Core.UseCase.Requests.Queries
 {
-    public class GetMenuQuery: IRequest<Result<List<MenuItem>>> 
+    public class GetMenuQuery : IRequest<Result<List<MenuItem>>>
     {
-        public GetMenuQuery() {}
     }
 }

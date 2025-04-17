@@ -1,37 +1,22 @@
 ﻿using Cantina.Core.Dto;
 using Cantina.Core.Interface;
 using Cantina.Core.UseCase.Requests;
+using Cantina.Core.UseCase.Requests.Queries;
 using FluentResults;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Handlers
 {
-    public class GetMenuQueryHandler : IRequestHandler<GetMenuQuery, Result<List<MenuItem>>>
+    public class GetMenuQueryHandler(IMenuItemRepository menuItemRepository) : IRequestHandler<GetMenuQuery, Result<List<MenuItem>>>
     {
-        private readonly ILogger<GetMenuQueryHandler> _logger;
-        private readonly IMenuItemRepository _menuItemRepository;
-        public GetMenuQueryHandler(IMenuItemRepository menuItemRepository, ILogger<GetMenuQueryHandler> logger)
-        {
-            _logger = logger;
-            _menuItemRepository = menuItemRepository;
-        }
+        private readonly IMenuItemRepository _menuItemRepository = menuItemRepository;
+
         public async Task<Result<List<MenuItem>>> Handle(GetMenuQuery request, CancellationToken cancellationToken)
         {
-            try {
-                var response = await _menuItemRepository.GetAllMenuItemsAsync();
-                return Result.Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting menu items.");
-                return Result.Fail("An error occurred while processing your request.");
-            }
+            var menuItems = await _menuItemRepository.GetAllAsync();
+            if (menuItems.Count == 0)
+                return Result.Fail("No menu found");
+            return Result.Ok(menuItems);
         }
     }
 }

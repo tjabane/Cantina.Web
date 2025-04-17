@@ -4,11 +4,13 @@ using Cantina.Core.UseCase.Handlers;
 using Cantina.Core.Validator;
 using Cantina.Web.Controllers;
 using Cantina.Web.Helpers;
+using Castle.Core.Logging;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
 using System;
@@ -24,13 +26,16 @@ namespace Cantina.Tests.Web.Controllers
     public class MenuItemControllerTests
     {
         private readonly IValidator<MenuItem> _validator;
+        private readonly ILogger<MenuItemController> _logger;
         private readonly ServiceCollection _serviceDescriptors;
         private readonly Mock<IMenuItemRepository> _menuItemRepository;
+
 
         
         public MenuItemControllerTests()
         {
             _validator = new MenuItemValidator();
+            _logger = new Mock<ILogger<MenuItemController>>().Object;
             _menuItemRepository = new Mock<IMenuItemRepository>();
             _serviceDescriptors = new ServiceCollection();
             _serviceDescriptors.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetMenuQueryHandler).Assembly));
@@ -40,9 +45,9 @@ namespace Cantina.Tests.Web.Controllers
         [Fact]
         public async Task GetAll_ShouldReturnMenuItems_WhenTheresDataAsync()
         {
-            _menuItemRepository.Setup(repo => repo.GetAllMenuItemsAsync()).ReturnsAsync([GetMenuItem()]);
+            _menuItemRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync([GetMenuItem()]);
             var mediator = CreateMediator(_menuItemRepository);
-            var menuItemController = new MenuItemController(mediator, _validator);
+            var menuItemController = new MenuItemController(mediator, _validator, _logger);
 
             var actionResult = await menuItemController.GetAllAsync();
 
@@ -58,25 +63,23 @@ namespace Cantina.Tests.Web.Controllers
         [Fact]
         public async Task GetAll_ShouldReturnEmptyMenu_WhenNoDataAsync()
         {
-            _menuItemRepository.Setup(repo => repo.GetAllMenuItemsAsync()).ReturnsAsync([]);
+            _menuItemRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync([]);
             var mediator = CreateMediator(_menuItemRepository);
-            var menuItemController = new MenuItemController(mediator, _validator);
+            var menuItemController = new MenuItemController(mediator, _validator, _logger);
 
             var actionResult = await menuItemController.GetAllAsync();
 
             actionResult.ShouldNotBeNull();
-            var notFoundResult = actionResult as OkObjectResult;
+            var notFoundResult = actionResult as NotFoundObjectResult;
             notFoundResult.ShouldNotBeNull();
-            var menuItems = notFoundResult.Value as List<MenuItem>;
-            menuItems.ShouldBeEmpty();
         }
 
         [Fact]
         public async Task GetAll_ShouldReturn500InternalServerError_WhenExceptionAsync()
         {
-            _menuItemRepository.Setup(repo => repo.GetAllMenuItemsAsync()).ThrowsAsync(new Exception("Test exception"));
+            _menuItemRepository.Setup(repo => repo.GetAllAsync()).ThrowsAsync(new Exception("Test exception"));
             var mediator = CreateMediator(_menuItemRepository);
-            var menuItemController = new MenuItemController(mediator, _validator);
+            var menuItemController = new MenuItemController(mediator, _validator, _logger);
 
             var actionResult = await menuItemController.GetAllAsync();
 
@@ -87,14 +90,14 @@ namespace Cantina.Tests.Web.Controllers
         }
 
         [Fact]
-        public async Task GetMenuItemById_ShouldReturnMenuItem_WhenItExistsAsync()
+        public async Task GetByIdAsync_ShouldReturnMenuItem_WhenItExistsAsync()
         {
             var dish = GetMenuItem();
-            _menuItemRepository.Setup(repo => repo.GetItemByIdAsync(dish.Id)).ReturnsAsync(dish);
+            _menuItemRepository.Setup(repo => repo.GetByIdAsync(dish.Id)).ReturnsAsync(dish);
             var mediator = CreateMediator(_menuItemRepository);
-            var menuItemController = new MenuItemController(mediator, _validator);
+            var menuItemController = new MenuItemController(mediator, _validator, _logger);
 
-            var actionResult = await menuItemController.GetById(dish.Id);
+            var actionResult = await menuItemController.GetByIdAsync(dish.Id);
 
             actionResult.ShouldNotBeNull();
             var okResult = actionResult as OkObjectResult;
@@ -109,9 +112,9 @@ namespace Cantina.Tests.Web.Controllers
         [Fact]
         public async Task CreateMenuItem_ShouldReturnCreated_WhenRequestIsValidAsync()
         {
-            _menuItemRepository.Setup(repo => repo.AddMenuItemAsync(It.IsAny<MenuItem>())).Verifiable();
+            _menuItemRepository.Setup(repo => repo.AddAsync(It.IsAny<MenuItem>())).Verifiable();
             var mediator = CreateMediator(_menuItemRepository);
-            var menuItemController = new MenuItemController(mediator, _validator);
+            var menuItemController = new MenuItemController(mediator, _validator, _logger);
             var menuItem = GetMenuItem();
 
             var actionResult = await menuItemController.CreateAsync(menuItem);
@@ -119,14 +122,14 @@ namespace Cantina.Tests.Web.Controllers
             actionResult.ShouldNotBeNull();
             var createdResult = actionResult as CreatedAtActionResult;
             createdResult.ShouldNotBeNull();
-            _menuItemRepository.Verify(repo => repo.AddMenuItemAsync(menuItem), Times.AtMostOnce());
+            _menuItemRepository.Verify(repo => repo.AddAsync(menuItem), Times.AtMostOnce());
         }
 
         [Fact]
         public async Task CreateMenuItem_ShouldReturnBadRequest_WhenRequestBodyIsInvalidAsync()
         {
             var mediator = CreateMediator(_menuItemRepository);
-            var menuItemController = new MenuItemController(mediator, _validator);
+            var menuItemController = new MenuItemController(mediator, _validator, _logger);
             var menuItem = new MenuItem() { };
 
             var actionResult = await menuItemController.CreateAsync(menuItem);
@@ -143,9 +146,9 @@ namespace Cantina.Tests.Web.Controllers
         [Fact]
         public async Task CreateMenuItem_ShouldReturn500InternalServerError_WhenExceptionOccursAsync()
         {
-            _menuItemRepository.Setup(repo => repo.AddMenuItemAsync(It.IsAny<MenuItem>())).ThrowsAsync(new Exception("Error"));
+            _menuItemRepository.Setup(repo => repo.AddAsync(It.IsAny<MenuItem>())).ThrowsAsync(new Exception("Error"));
             var mediator = CreateMediator(_menuItemRepository);
-            var menuItemController = new MenuItemController(mediator, _validator);
+            var menuItemController = new MenuItemController(mediator, _validator, _logger);
             var menuItem = GetMenuItem();
 
             var actionResult = await menuItemController.CreateAsync(menuItem);
