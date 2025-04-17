@@ -25,11 +25,6 @@ namespace Cantina.Core.UseCase.Handlers
         {
             try {
                 var response = await _menuItemRepository.GetAllMenuItemsAsync();
-                if (response == null || response.Count == 0)
-                {
-                    _logger.LogWarning("No menu items found.");
-                    return Result.Fail("Menu items not found.");
-                }
                 return Result.Ok(response);
             }
             catch (Exception ex)

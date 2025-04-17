@@ -2,12 +2,7 @@
 using Cantina.Core.Validator;
 using FluentValidation;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+
 
 namespace Cantina.Tests.Core.Validator
 {

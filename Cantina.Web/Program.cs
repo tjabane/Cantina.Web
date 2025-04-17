@@ -1,7 +1,11 @@
+using Cantina.Core.Validator;
+using Microsoft.AspNetCore.Identity;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using FluentValidation;
+using Cantina.Core.Dto;
 
 var builder = WebApplication.CreateBuilder(args);
 var applicationName = builder.Configuration["ApplicationName"] ?? "The Cantina";
@@ -10,8 +14,10 @@ var applicationName = builder.Configuration["ApplicationName"] ?? "The Cantina";
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-// MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Cantina.Core.UseCase.Handlers.GetMenuQueryHandler).Assembly));
+
+builder.Services.AddScoped<IValidator<MenuItem>, MenuItemValidator>();
+
 // Open Telemetry
 builder.Logging.AddOpenTelemetry(options =>
 {
