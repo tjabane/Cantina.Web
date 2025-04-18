@@ -11,16 +11,17 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Handlers
 {
-    public class DeleteMenuItemCommandHandler(IMenuItemRepository menuItemRepository) : IRequestHandler<DeleteMenuItemCommand, Result>
+    public class DeleteMenuItemCommandHandler(IMenuCommandRepository menuCmdRepository, IMenuQueryRepository menuQueryRepository) : IRequestHandler<DeleteMenuItemCommand, Result>
     {
-        private readonly IMenuItemRepository _menuItemRepository = menuItemRepository;
+        private readonly IMenuCommandRepository _menuCmdRepository = menuCmdRepository;
+        private readonly IMenuQueryRepository _menuQueryRepository = menuQueryRepository;
 
         public async Task<Result> Handle(DeleteMenuItemCommand request, CancellationToken cancellationToken)
         {
-            var menuItem = await _menuItemRepository.GetByIdAsync(request.Id);
+            var menuItem = await _menuQueryRepository.GetByIdAsync(request.Id);
             if (menuItem is null)
                 return Result.Fail(new Error($"Menu item with id {request.Id} not found"));
-            await _menuItemRepository.DeleteAsync(request.Id);
+            await _menuCmdRepository.DeleteAsync(request.Id);
             return Result.Ok();
         }
     }

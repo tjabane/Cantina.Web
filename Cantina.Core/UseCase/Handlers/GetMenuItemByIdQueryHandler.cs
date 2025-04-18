@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Handlers
 {
-    public class GetMenuItemByIdQueryHandler(IMenuItemRepository menuItemRepository) : IRequestHandler<GetMenuItemByIdQuery, Result<MenuItem>>
+    public class GetMenuItemByIdQueryHandler(IMenuQueryRepository menuQueryRepository) : IRequestHandler<GetMenuItemByIdQuery, Result<MenuItem>>
     {
-        private readonly IMenuItemRepository _menuItemRepository = menuItemRepository;
+        private readonly IMenuQueryRepository _menuQueryRepository = menuQueryRepository;
 
         public async Task<Result<MenuItem>> Handle(GetMenuItemByIdQuery request, CancellationToken cancellationToken)
         {
-            var menuItem = await _menuItemRepository.GetByIdAsync(request.ItemId);
+            var menuItem = await _menuQueryRepository.GetByIdAsync(request.ItemId);
             if (menuItem is null)
                 return Result.Fail(new Error($"Menu item with ID {request.ItemId} not found"));
             return Result.Ok(menuItem);
