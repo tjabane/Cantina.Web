@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cantina.Core\Cantina.Core.csproj" />
+    <ProjectReference Include="..\Cantina.Infrastructure\Cantina.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
