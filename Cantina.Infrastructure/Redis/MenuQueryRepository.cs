@@ -13,15 +13,11 @@ using System.Text.Json;
 
 namespace Cantina.Infrastructure.Redis
 {
-    public class MenuQueryRepository : IMenuQueryRepository
+    public class MenuQueryRepository(IConnectionMultiplexer redis) : IMenuQueryRepository
     {
-        private readonly JsonCommands _jsonCMD;
-        private readonly SearchCommands _searchCommands;
-        public MenuQueryRepository(IConnectionMultiplexer redis)
-        {
-            _searchCommands = redis.GetDatabase().FT();
-            _jsonCMD = redis.GetDatabase().JSON();
-        }
+        private readonly JsonCommands _jsonCMD = redis.GetDatabase().JSON();
+        private readonly SearchCommands _searchCommands = redis.GetDatabase().FT();
+
         public async Task<List<MenuItem>> GetAllAsync()
         {
             var menuResponse = await _searchCommands.SearchAsync("menu-index", new Query("*"));

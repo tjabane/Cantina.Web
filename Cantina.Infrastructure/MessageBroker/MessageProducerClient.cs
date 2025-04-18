@@ -22,6 +22,11 @@ namespace Cantina.Infrastructure.MessageBroker
             var message = JsonSerializer.Serialize(menuItem);
             await _producer.ProduceAsync(_topic, new Message<int, string> { Key = menuItem.Id, Value = message });
         }
+        public async Task UpdateAsync(MenuItem menuItem)
+        {
+            var message = JsonSerializer.Serialize(menuItem);
+            await _producer.ProduceAsync(_topic, new Message<int, string> { Key = menuItem.Id, Value = message });
+        }
 
         public async Task DeleteAsync(int id)
         {
@@ -29,10 +34,6 @@ namespace Cantina.Infrastructure.MessageBroker
             await _producer.ProduceAsync(_topic, new Message<int, string> { Key = id, Value = delete });
         }
 
-        public async Task UpdateAsync(MenuItem menuItem)
-        {
-            var message = JsonSerializer.Serialize(menuItem);
-            await _producer.ProduceAsync(_topic, new Message<int, string> { Key = menuItem.Id, Value = message });
-        }
+        
     }
 }

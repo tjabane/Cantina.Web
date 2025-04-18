@@ -30,7 +30,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 // Message Broker
 builder.Services.AddSingleton<IMenuCommandRepository>(sp =>
 {
-    var host = builder.Configuration["MessageBroker:Host"];
+    var host = builder.Configuration["MessageBroker:Server"];
     var topic = builder.Configuration["MessageBroker:Topic"];
     return new MessageProducerClient(host, topic);
 });
