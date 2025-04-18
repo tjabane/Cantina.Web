@@ -21,7 +21,7 @@ namespace Cantina.Core.UseCase.Handlers
         {
             var menuItem = await _menuQueryRepository.GetByIdAsync(request.Id);
             if (menuItem is null)
-                return Result.Fail(new Error($"Menu item with ID {request.MenuItem.Id} not found"));
+                return Result.Fail(new Error($"Menu item with ID {request.Id} not found"));
             menuItem.Name = request.MenuItem.Name;
             menuItem.Description = request.MenuItem.Description;
             menuItem.Price = request.MenuItem.Price;
