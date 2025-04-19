@@ -9,6 +9,6 @@ namespace Cantina.Core.Interface
 {
     public interface IReviewCommandRepository
     {
-        Task AddAsync(ReviewDto review);
+        Task AddAsync(Review review);
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.Dto
 {
-    public class ReviewViewDto : ReviewDto
+    public class ReviewView : Review
     {
         public int Id { get; set; }
         public string UserName { get; set; }

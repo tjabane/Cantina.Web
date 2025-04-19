@@ -9,6 +9,6 @@ namespace Cantina.Core.Interface
 {
     public interface IReviewQueryRepository
     {
-        public Task<List<ReviewViewDto>> GetAllAsync();
+        public Task<List<ReviewView>> GetAllAsync();
     }
 }
