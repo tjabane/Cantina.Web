@@ -19,8 +19,7 @@ namespace Cantina.Core.UseCase.Handlers
 
         public async Task Handle(CreateMenuItemCommand request, CancellationToken cancellationToken)
         {
-            var menuItem = request.MenuItem;
-            await _menuCmdRepository.AddAsync(menuItem);
+            await _menuCmdRepository.AddAsync(request.MenuItem);
         }
     }
 }
