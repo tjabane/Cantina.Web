@@ -21,7 +21,7 @@ namespace Cantina.Infrastructure.MessageBroker
             var producerConfig = new ProducerConfig { BootstrapServers = host };
             _producer = new ProducerBuilder<Null, string>(producerConfig).Build();
         }
-        public async Task AddAsync(ReviewDto review)
+        public async Task AddAsync(Core.Dto.Review review)
         {
             var message = JsonSerializer.Serialize(review);
             await _producer.ProduceAsync(_topic, new Message<Null, string> { Value = message });

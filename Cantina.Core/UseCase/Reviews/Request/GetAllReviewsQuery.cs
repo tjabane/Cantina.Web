@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Reviews.Request
 {
-    public class GetAllReviewsQuery: IRequest<Result<List<ReviewViewDto>>> {}
+    public class GetAllReviewsQuery: IRequest<Result<List<ReviewView>>> {}
 }

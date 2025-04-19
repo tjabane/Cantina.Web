@@ -17,10 +17,10 @@ namespace Cantina.Infrastructure.Redis
     {
         private readonly string _indexName = "reviews-index";
         private readonly SearchCommands _searchCommands = redis.GetDatabase().FT();
-        public async Task<List<ReviewViewDto>> GetAllAsync()
+        public async Task<List<ReviewView>> GetAllAsync()
         {
             var menuResponse = await _searchCommands.SearchAsync(_indexName, new Query("*"));
-            return [.. menuResponse.ToJson().Select(json => JsonSerializer.Deserialize<ReviewViewDto>(json))];
+            return [.. menuResponse.ToJson().Select(json => JsonSerializer.Deserialize<ReviewView>(json))];
         }
     }
 }

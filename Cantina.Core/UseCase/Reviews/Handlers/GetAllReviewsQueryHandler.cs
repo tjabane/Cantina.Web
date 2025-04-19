@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Reviews.Handlers
 {
-    public class GetAllReviewsQueryHandler(IReviewQueryRepository reviewRepository) : IRequestHandler<GetAllReviewsQuery, Result<List<ReviewViewDto>>>
+    public class GetAllReviewsQueryHandler(IReviewQueryRepository reviewRepository) : IRequestHandler<GetAllReviewsQuery, Result<List<ReviewView>>>
     {
         private readonly IReviewQueryRepository _reviewRepository = reviewRepository;
-        public async Task<Result<List<ReviewViewDto>>> Handle(GetAllReviewsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<ReviewView>>> Handle(GetAllReviewsQuery request, CancellationToken cancellationToken)
         {
             var reviews = await _reviewRepository.GetAllAsync();
             if(reviews == null || reviews.Count == 0)

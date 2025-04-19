@@ -1,11 +1,11 @@
-﻿using Cantina.Core.Data.Entities;
-using Cantina.Core.Dto;
+﻿using Cantina.Core.Dto;
 using Cantina.Core.UseCase.Requests.Commands;
 using Cantina.Core.UseCase.Reviews.Request;
 using Cantina.Web.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Review = Cantina.Core.Dto.Review;
 
 namespace Cantina.Web.Controllers
 {
@@ -34,7 +34,7 @@ namespace Cantina.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] ReviewDto review)
+        public async Task<IActionResult> CreateAsync([FromBody] Review review)
         {
             try
             {

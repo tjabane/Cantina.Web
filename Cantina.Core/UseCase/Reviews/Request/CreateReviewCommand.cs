@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Cantina.Core.UseCase.Reviews.Request
 {
-    public class CreateReviewCommand(ReviewDto review) : IRequest
+    public class CreateReviewCommand(Review review) : IRequest<Result>
     {
-        private readonly ReviewDto _review = review;
-        public ReviewDto Review => _review;
+        private readonly Review _review = review;
+        public Review Review => _review;
     }
 }
