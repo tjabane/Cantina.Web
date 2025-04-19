@@ -77,7 +77,7 @@ namespace Cantina.Web.Controllers
                 if (!validationResult.IsValid)
                     return BadRequest(new Response(validationResult.Errors));
                 await _mediator.Send(new CreateMenuItemCommand(menuItem));
-                return StatusCode(StatusCodes.Status201Created, menuItem); ;
+                return StatusCode(StatusCodes.Status201Created, menuItem);
             } 
             catch (Exception ex) 
             {
