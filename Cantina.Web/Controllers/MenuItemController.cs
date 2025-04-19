@@ -52,9 +52,26 @@ namespace Cantina.Web.Controllers
             }
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchAsync([FromQuery] string name)
+        {
+            try
+            {
+                var menuResponse = await _mediator.Send(new SearchMenuItemQuery(name));
+                if (menuResponse.IsFailed)
+                    return NotFound(menuResponse.Errors);
+                return Ok(menuResponse.Value);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while searching menu items");
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response("Load shredding, try again later"));
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] MenuItem menuItem)
-        {
+        {       
             try {
                 var validationResult = await _validator.ValidateAsync(menuItem);
                 if (!validationResult.IsValid)
@@ -65,7 +82,7 @@ namespace Cantina.Web.Controllers
             catch (Exception ex) 
             {
                 _logger.LogError(ex, "An error occurred while creating menu item");
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response("Load shredding, try again later"));
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -80,6 +97,7 @@ namespace Cantina.Web.Controllers
                 return NotFound(updateResult.Errors);
             return NoContent();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)

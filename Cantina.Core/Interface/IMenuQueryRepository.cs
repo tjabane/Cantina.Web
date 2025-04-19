@@ -7,5 +7,6 @@ namespace Cantina.Core.Interface
     {
         Task<List<MenuItem>> GetAllAsync();
         Task<MenuItem> GetByIdAsync(int id);
+        Task<List<MenuItem>> SearchAsync(string searchTerm);
     }
 }
