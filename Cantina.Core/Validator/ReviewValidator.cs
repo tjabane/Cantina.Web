@@ -13,10 +13,8 @@ namespace Cantina.Core.Validator
         public ReviewValidator() 
         {
             RuleFor(review => review.Rating)
-                .NotEmpty().WithMessage("Rating is required.")
                 .InclusiveBetween(1, 5).WithMessage("Rating must be between 1 and 5.");
             RuleFor(review => review.Comment)
-                .NotEmpty().WithMessage("Comment is required.")
                 .MaximumLength(500).WithMessage("Comment must not exceed 500 characters.");
             RuleFor(review => review.UserId)
                 .NotEmpty().WithMessage("User ID is required.");
