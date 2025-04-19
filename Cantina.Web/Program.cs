@@ -20,6 +20,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Cantina.Core.UseCase.Handlers.GetMenuQueryHandler).Assembly));
 builder.Services.AddSingleton<IMenuQueryRepository, MenuQueryRepository>();
+builder.Services.AddSingleton<IReviewQueryRepository, ReviewQueryRepository>();
 builder.Services.AddScoped<IValidator<MenuItem>, MenuItemValidator>();
 // Redis
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -27,12 +28,19 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     var configuration = builder.Configuration.GetConnectionString("Redis");
     return ConnectionMultiplexer.Connect(configuration);
 });
-// Message Broker
+// Message Broker 
 builder.Services.AddSingleton<IMenuCommandRepository>(sp =>
 {
     var host = builder.Configuration["MessageBroker:Server"];
     var topic = builder.Configuration["MessageBroker:Topic"];
-    return new MessageProducerClient(host, topic);
+    return new MenuCommandRepository(host, topic);
+});
+
+builder.Services.AddSingleton<IReviewCommandRepository>(sp =>
+{
+    var host = builder.Configuration["MessageBroker:Server"];
+    var topic = builder.Configuration["MessageBroker:Topic"];
+    return new ReviewCommandRepository(host, topic);
 });
 
 // Open Telemetry

@@ -5,12 +5,12 @@ using System.Text.Json;
 
 namespace Cantina.Infrastructure.MessageBroker
 {
-    public class MessageProducerClient : IMenuCommandRepository
+    public class MenuCommandRepository : IMenuCommandRepository
     {
         private readonly string _topic;
         private readonly IProducer<int, string> _producer; 
 
-        public MessageProducerClient(string host, string topic)
+        public MenuCommandRepository(string host, string topic)
         {
             _topic = topic;
             var producerConfig = new ProducerConfig { BootstrapServers = host };
