@@ -10,17 +10,21 @@ using Cantina.Infrastructure.MessageBroker;
 using Cantina.Core.Interface;
 using Cantina.Infrastructure.Redis;
 using StackExchange.Redis;
+using Cantina.Infrastructure.SQL;
+using Microsoft.EntityFrameworkCore;
+using Cantina.Core.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 var applicationName = builder.Configuration["ApplicationName"] ?? "The Cantina";
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Cantina.Core.UseCase.Handlers.GetMenuQueryHandler).Assembly));
 builder.Services.AddSingleton<IMenuQueryRepository, MenuQueryRepository>();
 builder.Services.AddSingleton<IReviewQueryRepository, ReviewQueryRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IValidator<MenuItem>, MenuItemValidator>();
 // Redis
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -42,6 +46,19 @@ builder.Services.AddSingleton<IReviewCommandRepository>(sp =>
     var topic = builder.Configuration["MessageBroker:Topic"];
     return new ReviewCommandRepository(host, topic);
 });
+// Entity Framework
+
+builder.Services.AddDbContext<CantinaDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//Identity
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+                    options.Lockout.MaxFailedAccessAttempts = 5;
+                    options.Lockout.AllowedForNewUsers = true;
+                    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                })
+                .AddEntityFrameworkStores<CantinaDbContext>()
+                .AddDefaultTokenProviders();
 
 // Open Telemetry
 builder.Logging.AddOpenTelemetry(options =>
@@ -67,7 +84,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
