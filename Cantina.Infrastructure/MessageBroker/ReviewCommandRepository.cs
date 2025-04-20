@@ -1,5 +1,4 @@
-﻿using Cantina.Core.Data.Entities;
-using Cantina.Core.Dto;
+﻿using Cantina.Core.Dto;
 using Cantina.Core.Interface;
 using Confluent.Kafka;
 using System;
