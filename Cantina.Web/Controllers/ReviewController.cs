@@ -10,44 +10,28 @@ using Review = Cantina.Core.Dto.Review;
 
 namespace Cantina.Web.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class ReviewController(IMediator mediator, ILogger<ReviewController> logger) : ControllerBase
+    public class ReviewController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        private readonly ILogger<ReviewController> _logger = logger;
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllAsync()
         {
-            try
-            {
-                var reviewsResponse = await _mediator.Send(new GetAllReviewsQuery());
-                if (reviewsResponse.IsFailed)
-                    return NotFound(reviewsResponse.Errors);
-                return Ok(reviewsResponse.Value);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while loading reviews");
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response("Something bad happened"));
-            }
+            var reviewsResponse = await _mediator.Send(new GetAllReviewsQuery());
+            if (reviewsResponse.IsFailed)
+                return NotFound(reviewsResponse.Errors);
+            return Ok(reviewsResponse.Value);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, Member")]
         public async Task<IActionResult> CreateAsync([FromBody] Review review)
         {
-            try
-            {
-                await _mediator.Send(new CreateReviewCommand(review));
-                return StatusCode(StatusCodes.Status201Created, review);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while creating a review");
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response("Keyboad not found, press F1 to restart"));
-            }
+            await _mediator.Send(new CreateReviewCommand(review));
+            return StatusCode(StatusCodes.Status201Created, review);
         }
     }
 }

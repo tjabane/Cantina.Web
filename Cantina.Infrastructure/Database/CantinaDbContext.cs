@@ -3,6 +3,8 @@ using Cantina.Infrastructure.Database.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Reflection.Emit;
 
 
 namespace Cantina.Infrastructure.Database
@@ -16,12 +18,17 @@ namespace Cantina.Infrastructure.Database
             {
                 entity.Property(e => e.FullName).HasMaxLength(256);
             });
-
-
             SeedUsersRoles seedUsersRoles = new();
             builder.Entity<IdentityRole>().HasData(seedUsersRoles.Roles);
             builder.Entity<ApplicationUser>().HasData(seedUsersRoles.Users);
             builder.Entity<IdentityUserRole<string>>().HasData(seedUsersRoles.UserRoles);
+
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(warnings =>
+                warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
     }
 }

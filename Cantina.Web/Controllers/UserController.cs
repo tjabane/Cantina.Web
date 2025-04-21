@@ -32,7 +32,7 @@ namespace Cantina.Web.Controllers
             var result = await _mediator.Send(new LoginQuery(userDto.Email, userDto.Password));
             if (result.IsFailed)
                 return BadRequest(result.Errors);
-            return Ok(result.Value);
+            return Ok(new { token = result.Value });
         }
     }
 }

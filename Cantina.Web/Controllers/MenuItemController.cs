@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cantina.Web.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MenuItemController(IMediator mediator, IValidator<MenuItem> validator, ILogger<MenuItemController> logger) : ControllerBase
@@ -21,6 +20,7 @@ namespace Cantina.Web.Controllers
         private readonly ILogger<MenuItemController> _logger = logger;
 
         [HttpGet]
+        [Authorize(Roles = "Admin, Member")]
         public async Task<IActionResult> GetAllAsync()
         {
             try
@@ -38,6 +38,7 @@ namespace Cantina.Web.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin, Member")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             try
@@ -55,6 +56,7 @@ namespace Cantina.Web.Controllers
         }
 
         [HttpGet("search")]
+        [Authorize(Roles = "Admin, Member")]
         public async Task<IActionResult> SearchAsync([FromQuery] string name)
         {
             try
@@ -72,6 +74,7 @@ namespace Cantina.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAsync([FromBody] MenuItem menuItem)
         {       
             try {
@@ -89,6 +92,7 @@ namespace Cantina.Web.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateAsync(int id, [FromBody] MenuItem menuItem)
         {
             var validationResult = await _validator.ValidateAsync(menuItem);
@@ -102,6 +106,7 @@ namespace Cantina.Web.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             try {
