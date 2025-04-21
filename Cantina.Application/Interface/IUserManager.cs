@@ -9,5 +9,6 @@ namespace Cantina.Application.Interface
         Task<bool> CheckPasswordAsync(ApplicationUser user, string password);
         Task<IList<string>> GetRolesAsync(ApplicationUser user);
         Task<IdentityResult> CreateAsync(ApplicationUser user, string password);
+        Task<IdentityResult> AddToRoleAsync(ApplicationUser user, string role);
     }
 }

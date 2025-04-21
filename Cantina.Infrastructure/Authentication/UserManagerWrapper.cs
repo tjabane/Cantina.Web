@@ -8,6 +8,11 @@ namespace Cantina.Infrastructure.Authentication
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
 
+        public async Task<IdentityResult> AddToRoleAsync(ApplicationUser user, string role)
+        {
+            return await _userManager.AddToRoleAsync(user, role);
+        }
+
         public async Task<bool> CheckPasswordAsync(ApplicationUser user, string password)
         {
             return await _userManager.CheckPasswordAsync(user, password);
