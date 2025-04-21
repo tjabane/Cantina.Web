@@ -6,12 +6,19 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Reflection.Emit;
+using Action = Cantina.Domain.Entities.Action;
 
 
 namespace Cantina.Infrastructure.Database
 {
     public class CantinaDbContext(DbContextOptions<CantinaDbContext> options) : IdentityDbContext<IdentityUser>(options)
     {
+        public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<MenuItemType> MenuItemTypes { get; set; }
+        public DbSet<MenuAudit> MenuAudits { get; set; }
+        public DbSet<Action> Actions { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
