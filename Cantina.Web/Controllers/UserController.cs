@@ -17,7 +17,7 @@ namespace Cantina.Web.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserDto userDto)
         {
             var result = await _mediator.Send(new CreateUserCommand(userDto.FullName, userDto.Email, userDto.Password));
