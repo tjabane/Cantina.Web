@@ -22,10 +22,7 @@ namespace Cantina.Infrastructure.Database.Configuration
             builder.Property(x => x.ImageUrl).HasMaxLength(200);
             builder.Property(x => x.IsDeleted).HasDefaultValue(false);
             builder.Property(x => x.CreatedAt).HasDefaultValueSql("GETDATE()");
-            builder.HasOne(x => x.MenuItemType)
-                   .WithMany()
-                   .HasForeignKey(x => x.MenuItemTypeId)
-                   .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

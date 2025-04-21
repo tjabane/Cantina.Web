@@ -9,7 +9,7 @@ namespace Cantina.Infrastructure.Database.Configuration
     {
         public void Configure(EntityTypeBuilder<MenuItemType> builder)
         {
-            builder.ToTable("MenuItems");
+            builder.ToTable("MenuItemTypes");
             builder.HasKey(m => m.Id);
             builder.Property(m => m.Name).IsRequired().HasMaxLength(100);
 

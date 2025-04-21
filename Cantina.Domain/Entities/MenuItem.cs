@@ -17,9 +17,6 @@ namespace Cantina.Domain.Entities
         public string ImageUrl { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
-
-        public MenuItemType MenuItemType { get; set; }
-        public ICollection<Review> Reviews { get; set; } = [];
-
+        public List<Review> Reviews { get; set; } = [];
     }
 }

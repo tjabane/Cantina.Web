@@ -14,7 +14,5 @@ namespace Cantina.Domain.Entities
         public int ActionId { get; set; }
         public DateTime Timestamp { get; set; }
         public Action Action { get; set; }
-        public ICollection<ApplicationUser> AdminUser { get; set; }
-        public ICollection<MenuItem> MenuItems { get; set; }
     }
 }
