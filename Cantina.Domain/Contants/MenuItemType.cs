@@ -8,7 +8,7 @@ namespace Cantina.Domain.Contants
 {
     public enum MenuItemType
     {
-        Food,
-        Drink
+        Food = 1,
+        Drink = 2
     }
 }
