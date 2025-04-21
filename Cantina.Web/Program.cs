@@ -10,7 +10,7 @@ using Cantina.Infrastructure.MessageBroker;
 using Cantina.Core.Interface;
 using Cantina.Infrastructure.Redis;
 using StackExchange.Redis;
-using Cantina.Infrastructure.SQL;
+using Cantina.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Cantina.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -67,8 +67,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
                     options.Lockout.MaxFailedAccessAttempts = 5;
                     options.Lockout.AllowedForNewUsers = true;
                     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                })
-                .AddEntityFrameworkStores<CantinaDbContext>();
+                    })
+                .AddEntityFrameworkStores<CantinaDbContext>()
+                .AddRoles<IdentityRole>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options => {
