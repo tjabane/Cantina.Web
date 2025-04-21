@@ -12,7 +12,13 @@ using Cantina.Infrastructure.Redis;
 using StackExchange.Redis;
 using Cantina.Infrastructure.SQL;
 using Microsoft.EntityFrameworkCore;
-using Cantina.Core.Entities;
+using Cantina.Domain.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Cantina.Infrastructure.Authentication;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Cantina.Application.Interface;
+using Cantina.Application.UseCase.User.Commands.CreateUser;
 
 var builder = WebApplication.CreateBuilder(args);
 var applicationName = builder.Configuration["ApplicationName"] ?? "The Cantina";
@@ -21,17 +27,20 @@ var applicationName = builder.Configuration["ApplicationName"] ?? "The Cantina";
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Cantina.Core.UseCase.Handlers.GetMenuQueryHandler).Assembly));
+
 builder.Services.AddSingleton<IMenuQueryRepository, MenuQueryRepository>();
 builder.Services.AddSingleton<IReviewQueryRepository, ReviewQueryRepository>();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IValidator<MenuItem>, MenuItemValidator>();
+builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
+builder.Services.AddScoped<IUserManager, UserManagerWrapper>();
+
+//MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Cantina.Core.UseCase.Handlers.GetMenuQueryHandler).Assembly));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateUserCommandHandler).Assembly));
+
 // Redis
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    var configuration = builder.Configuration.GetConnectionString("Redis");
-    return ConnectionMultiplexer.Connect(configuration);
-});
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
 // Message Broker 
 builder.Services.AddSingleton<IMenuCommandRepository>(sp =>
 {
@@ -46,19 +55,41 @@ builder.Services.AddSingleton<IReviewCommandRepository>(sp =>
     var topic = builder.Configuration["MessageBroker:Topic"];
     return new ReviewCommandRepository(host, topic);
 });
-// Entity Framework
 
+
+// Configure Options
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+
+// Entity Framework
 builder.Services.AddDbContext<CantinaDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 //Identity
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
                     options.Lockout.MaxFailedAccessAttempts = 5;
                     options.Lockout.AllowedForNewUsers = true;
                     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 })
-                .AddEntityFrameworkStores<CantinaDbContext>()
-                .AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<CantinaDbContext>();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(options => {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options => {
+                    options.RequireHttpsMetadata = false; 
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+                    };
+                });
+
 
 // Open Telemetry
 builder.Logging.AddOpenTelemetry(options =>
@@ -81,6 +112,7 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -89,6 +121,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
