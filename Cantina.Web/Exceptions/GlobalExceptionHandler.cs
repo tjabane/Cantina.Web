@@ -22,7 +22,7 @@ namespace Cantina.Web.Exceptions
             }
             else
             {
-                problemDetails.Title = exception.Message;
+                problemDetails.Title = "500: Something just broke";
                 problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1";
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 problemDetails.Extensions.Add("traceId", httpContext.TraceIdentifier);

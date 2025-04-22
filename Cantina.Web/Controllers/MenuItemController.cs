@@ -1,24 +1,20 @@
-﻿using Cantina.Application.UseCase.Menu.Commands.AddMenuItem;
-using Cantina.Core.Dto;
-using Cantina.Core.UseCase.Requests.Commands;
-using Cantina.Application.UseCase.Menu.Query.GetMenu;
+﻿using Cantina.Application.UseCase.Menu.Query.GetMenu;
 using Cantina.Web.Helpers;
-using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Cantina.Application.UseCase.Menu.Query.GetMenuItemById;
 using Cantina.Application.UseCase.Menu.Query.SearchMenu;
 using Cantina.Web.Dto;
-using System.IdentityModel.Tokens.Jwt;
+using Cantina.Application.UseCase.Menu.Commands.DeleteMenuItem;
+using Cantina.Web.Abstration;
 
 namespace Cantina.Web.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class MenuItemController(IMediator mediator) : ControllerBase
+    public class MenuItemController(IMediator mediator) : CantinaController
     {
         private readonly IMediator _mediator = mediator;
 
@@ -47,38 +43,26 @@ namespace Cantina.Web.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAsync([FromBody] MenuItemDto menuItem)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var addItemCmd = new AddMenuItemCommand()
-            {
-                UserId = userId,
-                Name = menuItem.Name,
-                Description = menuItem.Description,
-                Price = menuItem.Price,
-                ImageUrl = menuItem.ImageUrl,
-                Type = menuItem.Type,
-            };
-            var newItem = await _mediator.Send(addItemCmd);
-            return StatusCode(StatusCodes.Status201Created, newItem.Value);
+            var addItemCmd = CommandFactory.CreateAddMenuItemCommand(menuItem, CurrentUserId);
+            await _mediator.Send(addItemCmd);
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateAsync(int id, [FromBody] MenuItem menuItem)
+        public async Task<IActionResult> UpdateAsync([FromBody] MenuItemDto menuItem, int id)
         {
-            var updateResult = await _mediator.Send(new UpdateMenuItemCommand(id, menuItem));
-            if(updateResult.IsFailed)
-                return NotFound(updateResult.Errors);
-            return NoContent();
+            var updateCmd = CommandFactory.CreateUpdateMenuItemCommand(menuItem, id, CurrentUserId);
+            var updateResult = await _mediator.Send(updateCmd);
+            return updateResult.IsFailed? NotFound(updateResult.Errors): NoContent();
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var deleteResult = await _mediator.Send(new DeleteMenuItemCommand(id));
-            if (deleteResult.IsFailed)
-                return NotFound(deleteResult.Errors);
-            return NoContent();
+            var deleteResult = await _mediator.Send(new DeleteMenuItemCommand(id, CurrentUserId));
+            return deleteResult.IsFailed? NotFound(deleteResult.Errors) : NoContent();
         }
     }
 }

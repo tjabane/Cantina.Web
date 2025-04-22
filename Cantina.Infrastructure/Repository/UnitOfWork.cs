@@ -9,13 +9,15 @@ namespace Cantina.Infrastructure.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
+        private readonly IConnectionMultiplexer _redis;
         private readonly CantinaDbContext _context;
         public UnitOfWork(CantinaDbContext context, IConnectionMultiplexer redis, IOptions<RedisOptions> redisOptions)
         {
+            _redis = redis;
             _context = context;
-            MenuRepository = new MenuRepository(_context, redis, redisOptions);
             MenuAuditRepository = new MenuAuditRepository(_context);
-            //ReviewRepository = new ReviewRepository(_context);
+            MenuRepository = new MenuRepository(_context, redis, redisOptions);
+            ReviewRepository = new ReviewRepository(_context, redis, redisOptions);
         }
         public IMenuRepository MenuRepository { get; }
         public IMenuAuditRepository MenuAuditRepository { get; }
@@ -23,6 +25,7 @@ namespace Cantina.Infrastructure.Repository
 
         public void Dispose()
         {
+            _redis.Dispose();
             _context.Dispose();
             GC.SuppressFinalize(this);
         }

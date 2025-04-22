@@ -10,7 +10,7 @@ namespace Cantina.Web.Extension
         {
             services.AddMediatR(cfg =>
             {
-                cfg.RegisterServicesFromAssemblies(typeof(Core.UseCase.Handlers.CreateMenuItemCommandHandler).Assembly);
+                cfg.RegisterServicesFromAssemblies(typeof(Core.UseCase.Reviews.Handlers.CreateReviewCommandHandler).Assembly);
                 cfg.RegisterServicesFromAssemblies(typeof(CreateUserCommandHandler).Assembly);
                 cfg.AddOpenBehavior(typeof(RequestResponseLoggingBehavior<,>));
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));

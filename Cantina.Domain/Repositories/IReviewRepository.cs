@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cantina.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,7 @@ namespace Cantina.Domain.Repositories
 {
     public interface IReviewRepository
     {
+        Task AddReviewAsync(Review review);
+        Task<List<Review>> GetAllReviewsAsync();
     }
 }
