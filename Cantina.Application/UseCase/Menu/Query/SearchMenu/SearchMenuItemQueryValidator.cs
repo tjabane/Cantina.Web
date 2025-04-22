@@ -11,7 +11,7 @@ namespace Cantina.Application.UseCase.Menu.Query.SearchMenu
     {
         public SearchMenuItemQueryValidator()
         {
-            RuleFor(x => x.search)
+            RuleFor(x => x.Search)
                 .NotEmpty()
                 .WithMessage("Search term cannot be empty");
         }
