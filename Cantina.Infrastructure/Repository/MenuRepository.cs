@@ -1,17 +1,26 @@
 ﻿using Cantina.Domain.Entities;
 using Cantina.Domain.Repositories;
 using Cantina.Infrastructure.Database;
+using NRedisStack.RedisStackCommands;
+using NRedisStack;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using NRedisStack.Search;
 
 namespace Cantina.Infrastructure.Repository
 {
-    public class MenuRepository(CantinaDbContext context) : IMenuRepository, IDisposable
+    public class MenuRepository(CantinaDbContext context, IConnectionMultiplexer redis, string index) : IMenuRepository, IDisposable
     {
+        private readonly string _indexName = index;
         private readonly CantinaDbContext _context = context;
+        private readonly JsonCommands _jsonCMD = redis.GetDatabase().JSON();
+        private readonly SearchCommands _searchCommands = redis.GetDatabase().FT();
+
 
         public async Task AddAsync(MenuItem menuItem)
         {
@@ -30,24 +39,30 @@ namespace Cantina.Infrastructure.Repository
             _context.MenuItems.Update(menu);
         }
 
-        public Task<IEnumerable<MenuItem>> GetAllAsync()
+        public async Task<List<MenuItem>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            var menuResponse = await _searchCommands.SearchAsync(_indexName, new Query("*"));
+            return [.. menuResponse.ToJson().Select(json => JsonSerializer.Deserialize<MenuItem>(json))];
         }
 
-        public Task<MenuItem> GetByIdAsync(int id)
+        public async Task<MenuItem> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _jsonCMD.GetAsync<MenuItem>($"menu:{id}");
         }
 
-        public Task<IEnumerable<MenuItem>> SearchAsync(string name)
+        public async Task<IEnumerable<MenuItem>> SearchAsync(string searchTerm)
         {
-            throw new NotImplementedException();
+            var menuResponse = await _searchCommands.SearchAsync(_indexName, new Query("*"));
+            var filtered = menuResponse.ToJson().Select(json => JsonSerializer.Deserialize<MenuItem>(json))
+                                                .Where(item => item.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            return [.. filtered];
         }
 
         public void Dispose()
         {
+            redis.Dispose();
             _context.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public async Task SaveChangesAsync()

@@ -9,7 +9,7 @@ namespace Cantina.Domain.Repositories
 {
     public interface IMenuRepository
     {
-        Task<IEnumerable<MenuItem>> GetAllAsync();
+        Task<List<MenuItem>> GetAllAsync();
         Task<MenuItem> GetByIdAsync(int id);
         Task<IEnumerable<MenuItem>> SearchAsync(string name);
         Task AddAsync(MenuItem menuItem);

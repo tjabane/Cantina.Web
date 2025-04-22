@@ -1,7 +1,8 @@
-﻿using Cantina.Core.Dto;
-using Cantina.Core.UseCase.Requests;
+﻿using Cantina.Application.UseCase.Menu.Commands.AddMenuItem;
+using Cantina.Core.Dto;
 using Cantina.Core.UseCase.Requests.Commands;
 using Cantina.Core.UseCase.Requests.Queries;
+using Cantina.Application.UseCase.Menu.Query.GetMenu;
 using Cantina.Web.Helpers;
 using FluentValidation;
 using MediatR;
@@ -11,52 +12,31 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cantina.Web.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class MenuItemController(IMediator mediator, IValidator<MenuItem> validator, ILogger<MenuItemController> logger) : ControllerBase
+    public class MenuItemController(IMediator mediator, ILogger<MenuItemController> logger) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        private readonly IValidator<MenuItem> _validator = validator;
         private readonly ILogger<MenuItemController> _logger = logger;
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Member")]
         public async Task<IActionResult> GetAllAsync()
         {
-            try
-            {
-                var menuResponse = await _mediator.Send(new GetMenuQuery());
-                if (menuResponse.IsFailed)
-                    return NotFound(menuResponse.Errors);
-                return Ok(menuResponse.Value);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while loading menu items");
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response("Load shredding, try again later"));
-            }
+            var menuResponse = await _mediator.Send(new GetMenuQuery());
+            return menuResponse.IsFailed ? NotFound(menuResponse.Errors) : Ok(menuResponse.Value);
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, Member")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
-            try
-            {
-                var menuResponse = await _mediator.Send(new GetMenuItemByIdQuery(id));
-                if (menuResponse.IsFailed)
-                    return NotFound(menuResponse.Errors);
-                return Ok(menuResponse.Value);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while loading menu item");
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response("Load shredding, try again later"));
-            }
+            var menuResponse = await _mediator.Send(new GetMenuItemByIdQuery(id));
+            if (menuResponse.IsFailed)
+                return NotFound(menuResponse.Errors);
+            return Ok(menuResponse.Value);
         }
 
         [HttpGet("search")]
-        [Authorize(Roles = "Admin, Member")]
         public async Task<IActionResult> SearchAsync([FromQuery] string name)
         {
             try
@@ -78,12 +58,9 @@ namespace Cantina.Web.Controllers
         public async Task<IActionResult> CreateAsync([FromBody] MenuItem menuItem)
         {       
             try {
-                var validationResult = await _validator.ValidateAsync(menuItem);
-                if (!validationResult.IsValid)
-                    return BadRequest(new Response(validationResult.Errors));
-                await _mediator.Send(new CreateMenuItemCommand(menuItem));
+                await _mediator.Send(new AddMenuItemCommand(menuItem.Name, menuItem.Description, menuItem.Price, menuItem.Image));
                 return StatusCode(StatusCodes.Status201Created, menuItem);
-            } 
+            }
             catch (Exception ex) 
             {
                 _logger.LogError(ex, "An error occurred while creating menu item");
@@ -95,9 +72,6 @@ namespace Cantina.Web.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateAsync(int id, [FromBody] MenuItem menuItem)
         {
-            var validationResult = await _validator.ValidateAsync(menuItem);
-            if (!validationResult.IsValid)
-                return BadRequest(new Response(validationResult.Errors));
             var updateResult = await _mediator.Send(new UpdateMenuItemCommand(id, menuItem));
             if(updateResult.IsFailed)
                 return NotFound(updateResult.Errors);
@@ -109,17 +83,10 @@ namespace Cantina.Web.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            try {
-                var deleteResult = await _mediator.Send(new DeleteMenuItemCommand(id));
-                if (deleteResult.IsFailed)
-                    return NotFound(deleteResult.Errors);
-                return NoContent();
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while deleting menu item");
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response("Load shredding, try again later"));
-            }
+            var deleteResult = await _mediator.Send(new DeleteMenuItemCommand(id));
+            if (deleteResult.IsFailed)
+                return NotFound(deleteResult.Errors);
+            return NoContent();
         }
     }
 }
