@@ -11,16 +11,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using NRedisStack.Search;
+using Microsoft.Extensions.Options;
+using Cantina.Infrastructure.Options;
 
 namespace Cantina.Infrastructure.Repository
 {
-    public class MenuRepository(CantinaDbContext context, IConnectionMultiplexer redis, string index) : IMenuRepository, IDisposable
+    public class MenuRepository(CantinaDbContext context, IConnectionMultiplexer redis, IOptions<RedisOptions> redisOptions) : IMenuRepository, IDisposable
     {
-        private readonly string _indexName = index;
         private readonly CantinaDbContext _context = context;
+        private readonly string _indexName = redisOptions.Value.MenuIndex;
         private readonly JsonCommands _jsonCMD = redis.GetDatabase().JSON();
         private readonly SearchCommands _searchCommands = redis.GetDatabase().FT();
-
 
         public async Task AddAsync(MenuItem menuItem)
         {
@@ -50,7 +51,7 @@ namespace Cantina.Infrastructure.Repository
             return await _jsonCMD.GetAsync<MenuItem>($"menu:{id}");
         }
 
-        public async Task<IEnumerable<MenuItem>> SearchAsync(string searchTerm)
+        public async Task<List<MenuItem>> SearchAsync(string searchTerm)
         {
             var menuResponse = await _searchCommands.SearchAsync(_indexName, new Query("*"));
             var filtered = menuResponse.ToJson().Select(json => JsonSerializer.Deserialize<MenuItem>(json))

@@ -11,12 +11,10 @@ using System.Threading.Tasks;
 
 namespace Cantina.Application.UseCase.Menu.Commands.AddMenuItem
 {
-    public class AddMenuItemCommandHandler(IMenuRepository menuRepository, IUnitOfWork unitOfWork) : IRequestHandler<AddMenuItemCommand, Result>
+    public class AddMenuItemCommandHandler(IMenuRepository menuRepository, IUnitOfWork unitOfWork) : IRequestHandler<AddMenuItemCommand, Result<MenuItem>>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly IMenuRepository _menuRepository = menuRepository;
-
-        public async Task<Result> Handle(AddMenuItemCommand request, CancellationToken cancellationToken)
+        public async Task<Result<MenuItem>> Handle(AddMenuItemCommand request, CancellationToken cancellationToken)
         {
             var newMenuItem = new MenuItem
             {
@@ -28,16 +26,16 @@ namespace Cantina.Application.UseCase.Menu.Commands.AddMenuItem
             };
             var audit = new MenuAudit()
             {
-                UserId = request.UserId,
+                UserId = Guid.Parse(request.UserId),
                 MenuItemId = newMenuItem.Id,
-                ActionId = (int)Actions.Create
-
+                ActionId = (int)Actions.Create,
+                Timestamp = DateTime.Now
             };
 
             await _unitOfWork.MenuRepository.AddAsync(newMenuItem);
             await _unitOfWork.MenuAuditRepository.AddAsync(audit);
             await _unitOfWork.SaveChangesAsync();
-            return Result.Ok();
+            return Result.Ok(newMenuItem);
         }
     }
 }

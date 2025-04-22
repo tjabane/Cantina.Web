@@ -11,7 +11,7 @@ namespace Cantina.Domain.Repositories
     {
         Task<List<MenuItem>> GetAllAsync();
         Task<MenuItem> GetByIdAsync(int id);
-        Task<IEnumerable<MenuItem>> SearchAsync(string name);
+        Task<List<MenuItem>> SearchAsync(string name);
         Task AddAsync(MenuItem menuItem);
         void UpdateAsync(MenuItem menuItem);
         Task DeleteAsync(int id);

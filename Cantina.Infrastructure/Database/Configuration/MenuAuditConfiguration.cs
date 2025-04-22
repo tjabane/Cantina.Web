@@ -17,7 +17,7 @@ namespace Cantina.Infrastructure.Database.Configuration
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Property(x => x.ActionId).IsRequired();
-            builder.Property(x => x.Timestamp).IsRequired().ValueGeneratedOnAddOrUpdate();
+            builder.Property(x => x.Timestamp).HasDefaultValueSql("GETDATE()");
             builder.Property(x => x.UserId).IsRequired();
             builder.Property(x => x.MenuItemId).IsRequired();
 

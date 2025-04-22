@@ -7,7 +7,10 @@ namespace Cantina.Application.UseCase.Menu.Commands.AddMenuItem
     {
         public AddMenuItemCommandValidator()
         {
-            RuleFor(x => x.UserId).NotEmpty().WithMessage("Authorized user required");
+            RuleFor(x => x.UserId)
+                .NotEmpty().WithMessage("Authorized user required")
+                .Must(userId => Guid.TryParse(userId, out _))
+                .WithMessage("Invalid UserId format.");
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name is required.")
                 .MaximumLength(100).WithMessage("Name can't be more than 100 characters.")

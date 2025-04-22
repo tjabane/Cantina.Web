@@ -27,6 +27,7 @@ using System.Reflection;
 using Cantina.Web.Exceptions;
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.Configuration;
+using Cantina.Infrastructure.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -44,6 +45,8 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<IUserManager, UserManagerWrapper>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IMenuAuditRepository, MenuAuditRepository>();
 
 builder.Services.AddMediatRConfiguration();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
@@ -70,6 +73,7 @@ builder.Services.AddSingleton<IReviewCommandRepository>(sp =>
 
 // Configure Options
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("RedisIndices"));
 
 // Entity Framework
 builder.Services.AddDbContext<CantinaDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
