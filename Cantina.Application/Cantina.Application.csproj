@@ -18,8 +18,4 @@
     <ProjectReference Include="..\Cantina.Domain\Cantina.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UseCase\Reviews\Commands\" />
-  </ItemGroup>
-
 </Project>

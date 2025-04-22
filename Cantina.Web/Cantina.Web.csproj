@@ -36,7 +36,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cantina.Application\Cantina.Application.csproj" />
-    <ProjectReference Include="..\Cantina.Core\Cantina.Core.csproj" />
     <ProjectReference Include="..\Cantina.Infrastructure\Cantina.Infrastructure.csproj" />
   </ItemGroup>
 

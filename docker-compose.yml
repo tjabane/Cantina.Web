@@ -18,7 +18,7 @@ services:
       - sqlserverdata:/var/opt/mssql 
 
   cantina.cache:
-    image: redis:latest
+    image: redis/redis-stack:latest
     restart: always
     container_name: cantina.cache
     ports:
