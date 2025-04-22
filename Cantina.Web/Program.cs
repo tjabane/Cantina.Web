@@ -19,9 +19,17 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Cantina.Application.Interface;
 using Cantina.Application.UseCase.User.Commands.CreateUser;
+using Cantina.Domain.Repositories;
+using Cantina.Infrastructure.Repository;
+using Cantina.Web.Extension;
+using Cantina.Application.Behaviors;
+using System.Reflection;
+using Cantina.Web.Exceptions;
+using System.Threading.RateLimiting;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
-var applicationName = builder.Configuration["ApplicationName"] ?? "The Cantina";
+var configuration = builder.Configuration;
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -30,14 +38,18 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IMenuQueryRepository, MenuQueryRepository>();
 builder.Services.AddSingleton<IReviewQueryRepository, ReviewQueryRepository>();
+
+
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IValidator<MenuItem>, MenuItemValidator>();
+builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<IUserManager, UserManagerWrapper>();
 
-//MediatR
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Cantina.Core.UseCase.Handlers.GetMenuQueryHandler).Assembly));
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateUserCommandHandler).Assembly));
+builder.Services.AddMediatRConfiguration();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Redis
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
@@ -55,7 +67,6 @@ builder.Services.AddSingleton<IReviewCommandRepository>(sp =>
     var topic = builder.Configuration["MessageBroker:Topic"];
     return new ReviewCommandRepository(host, topic);
 });
-
 
 // Configure Options
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
@@ -91,34 +102,31 @@ builder.Services.AddAuthentication(options => {
                     };
                 });
 
-
-// Open Telemetry
-builder.Logging.AddOpenTelemetry(options =>
+builder.Services.AddRateLimiter(options =>
 {
-    options
-        .SetResourceBuilder(
-            ResourceBuilder.CreateDefault()
-                .AddService(applicationName))
-        .AddConsoleExporter();
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 10,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
 });
 
-builder.Services.AddOpenTelemetry()
-      .ConfigureResource(resource => resource.AddService(applicationName))
-      .WithTracing(tracing => tracing
-          .AddAspNetCoreInstrumentation()
-          .AddConsoleExporter())
-      .WithMetrics(metrics => metrics
-          .AddAspNetCoreInstrumentation()
-          .AddConsoleExporter());
+// Open Telemetry
+builder.ConfigOpenTelemetry();
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseMigrations();
 }
 
 app.UseHttpsRedirection();
@@ -126,6 +134,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+app.UseExceptionHandler();
+
+app.UseStatusCodePages();
 
 app.MapControllers();
 

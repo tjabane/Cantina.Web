@@ -13,6 +13,10 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Cantina.Web/Cantina.Web.csproj", "Cantina.Web/"]
+COPY ["Cantina.Application/Cantina.Application.csproj", "Cantina.Application/"]
+COPY ["Cantina.Domain/Cantina.Domain.csproj", "Cantina.Domain/"]
+COPY ["Cantina.Core/Cantina.Core.csproj", "Cantina.Core/"]
+COPY ["Cantina.Infrastructure/Cantina.Infrastructure.csproj", "Cantina.Infrastructure/"]
 RUN dotnet restore "./Cantina.Web/Cantina.Web.csproj"
 COPY . .
 WORKDIR "/src/Cantina.Web"
