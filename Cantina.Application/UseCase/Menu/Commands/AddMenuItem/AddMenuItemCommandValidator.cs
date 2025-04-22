@@ -7,12 +7,19 @@ namespace Cantina.Application.UseCase.Menu.Commands.AddMenuItem
     {
         public AddMenuItemCommandValidator()
         {
+            RuleFor(x => x.UserId).NotEmpty().WithMessage("Authorized user required");
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name is required.")
-                .MaximumLength(100).WithMessage("Name can't be more than 100 characters.");
+                .MaximumLength(100).WithMessage("Name can't be more than 100 characters.")
+                .Matches(@"^[a-zA-Z0-9\s]+$")
+                .WithMessage("Name contains invalid characters.");
+
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Description is required.")
-                .MaximumLength(500).WithMessage("Description can't be more than 512 characters.");
+                .MaximumLength(500).WithMessage("Description can't be more than 512 characters.")
+                .Matches(@"^[a-zA-Z0-9\s]+$")
+                .WithMessage("Description contains invalid characters.");
+
             RuleFor(x => x.Price)
                 .GreaterThan(0).WithMessage("Price must be greater than 0.");
             RuleFor(x => x.ImageUrl)

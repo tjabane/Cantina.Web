@@ -5,15 +5,14 @@ using MediatR;
 
 namespace Cantina.Application.UseCase.Menu.Query.GetMenu
 {
-    public class GetMenuQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetMenuQuery, Result<List<MenuItem>>>
+    public class GetMenuQueryHandler(IMenuRepository menuRepository) : IRequestHandler<GetMenuQuery, Result<List<MenuItem>>>
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
+        private readonly IMenuRepository _menuRepository = menuRepository;
         public async Task<Result<List<MenuItem>>> Handle(GetMenuQuery request, CancellationToken cancellationToken)
         {
-            var menuItems = await _unitOfWork.MenuRepository.GetAllAsync();
+            var menuItems = await _menuRepository.GetAllAsync();
             var activeMenuItems = menuItems.Where(x => !x.IsDeleted).ToList();
-            return (activeMenuItems.Count == 0) ?  Result.Fail("No active menu items found."): Result.Ok(activeMenuItems);
+            return (activeMenuItems.Count == 0) ?  Result.Fail(new Error("No active menu items found.")): Result.Ok(activeMenuItems);
         }
     }
 }
