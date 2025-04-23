@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantina.Domain", "Cantina.D
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantina.SyncService", "Cantina.SyncService\Cantina.SyncService.csproj", "{382B18B4-42D8-B0B3-EECF-C4034A587E03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{382B18B4-42D8-B0B3-EECF-C4034A587E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{382B18B4-42D8-B0B3-EECF-C4034A587E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{382B18B4-42D8-B0B3-EECF-C4034A587E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{382B18B4-42D8-B0B3-EECF-C4034A587E03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +63,7 @@ Global
 		{56C1F26C-5280-439C-9F83-598022EDF6B6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{DE187276-FFAF-4474-8821-B675A39627AD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{FAA13F4C-C074-4950-82DE-FEE385549343} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{382B18B4-42D8-B0B3-EECF-C4034A587E03} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FEDCB24F-9734-49DA-9E64-D9D01A3CA74D}

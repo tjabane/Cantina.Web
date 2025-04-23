@@ -23,6 +23,15 @@ services:
     container_name: cantina.cache
     ports:
       - "6379:6379"
+  cantina.syncservice:
+    image: ${DOCKER_REGISTRY-}cantinasyncservice
+    container_name: cantina.syncservice
+    build:
+      context: .
+      dockerfile: Cantina.SyncService/Dockerfile
+    depends_on:
+      - cantina.database
+      - cantina.cache
 volumes:
   sqlserverdata:
     driver: local

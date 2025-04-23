@@ -61,7 +61,6 @@ namespace Cantina.Infrastructure.Repository
 
         public void Dispose()
         {
-            redis.Dispose();
             _context.Dispose();
             GC.SuppressFinalize(this);
         }

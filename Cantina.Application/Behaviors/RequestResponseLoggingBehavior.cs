@@ -18,8 +18,7 @@ namespace Cantina.Application.Behaviors
             var requestJson = JsonSerializer.Serialize(request);
             logger.LogInformation("Handling request {CorrelationID}: {Request}", correlationId, requestJson);
             var response = await next(cancellationToken);
-            var responseJson = JsonSerializer.Serialize(response);
-            logger.LogInformation("Response for {Correlation}: {Response}", correlationId, responseJson);
+            logger.LogInformation("Response for {Correlation}", correlationId);
             return response;
         }
     }

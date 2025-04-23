@@ -10,7 +10,7 @@ namespace Cantina.SyncService
         {
             using var db = new SqlConnection(connectionString);
             await db.OpenAsync();
-            var items = await db.QueryAsync<MenuItem>("SELECT * FROM MenuItems WHERE IsDeleted = 0");
+            var items = await db.QueryAsync<MenuItem>("SELECT * FROM MenuItems");
             return [.. items];
         }
 

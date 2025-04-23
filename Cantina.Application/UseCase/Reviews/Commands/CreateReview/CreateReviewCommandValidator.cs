@@ -23,7 +23,7 @@ namespace Cantina.Application.UseCase.Reviews.Commands.CreateReview
                 .MaximumLength(500)
                 .WithMessage("Comment cannot exceed 500 characters.")
                 .Matches(@"^[a-zA-Z0-9\s]+$")
-                .WithMessage("Name contains invalid characters.");
+                .WithMessage("Comment contains invalid characters.");
         }
     }
 }

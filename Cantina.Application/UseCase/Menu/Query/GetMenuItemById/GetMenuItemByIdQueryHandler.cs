@@ -17,7 +17,7 @@ namespace Cantina.Application.UseCase.Menu.Query.GetMenuItemById
         public async Task<Result<MenuItem>> Handle(GetMenuItemByIdQuery request, CancellationToken cancellationToken)
         {
             var menuItem = await _menuRepository.GetByIdAsync(request.Id);
-            if (menuItem is null)
+            if (menuItem is null || menuItem.IsDeleted)
                 return Result.Fail(new Error($"Menu item with ID {request.Id} not found"));
             return Result.Ok(menuItem);
         }

@@ -25,7 +25,6 @@ namespace Cantina.Infrastructure.Repository
 
         public void Dispose()
         {
-            _redis.Dispose();
             _context.Dispose();
             GC.SuppressFinalize(this);
         }

@@ -16,6 +16,7 @@ namespace Cantina.SyncService
         private readonly ILogger<Worker> _logger;
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
+        private readonly string reviewsIndexName = "review-index";
 
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
         {
@@ -49,43 +50,40 @@ namespace Cantina.SyncService
         private async Task ProcessMenu()
         {
             var items = await DB.GetMenuItems(_connectionString);
-            _logger.LogInformation("From DB Menu ItemsCount: {time}", items.Count);
             await AddMenuToRedis(items);
             var redisItems = await _searchCmd.SearchAsync("menu-index", new Query("*"));
-            _logger.LogInformation("From Redis Menu ItemsCount: {time}", redisItems.TotalResults);
+            _logger.LogInformation("From Redis Menu ItemsCount: {count}", redisItems.TotalResults);
         }
 
         private async Task ProcessReviews()
         {
-            var items = await DB.GetReviews(_connectionString);
-            _logger.LogInformation("From DB Reviews ItemsCount: {time}", items.Count);
-            await AddReviewsToRedis(items);
-            var redisItems = await _searchCmd.SearchAsync("review-index", new Query("*"));
-            _logger.LogInformation("From Redis Reviews ItemsCount: {time}", redisItems.TotalResults);
+            var reviews = await DB.GetReviews(_connectionString);
+            _logger.LogInformation("From DB Reviews ItemsCount: {count}", reviews.Count);
+            await AddReviewsToRedis(reviews);
+            var redisItems = await _searchCmd.SearchAsync(reviewsIndexName, new Query("*"));
+            _logger.LogInformation("From Redis Reviews ItemsCount: {count}", redisItems.TotalResults);
         }
 
         private async Task AddReviewsToRedis(List<Review> items)
         {
             await CreateReviewsIndex();
-            var insertRequests = items.Select(item =>
-            {
-                var jsonData = JsonSerializer.Serialize(item);
-                return _jsonCmd.SetAsync($"review:{item.Id}", "$", item);
-            }).ToArray();
+            var insertRequests = items.Select(item => _jsonCmd.SetAsync($"review:{item.Id}", "$", item)).ToArray();
             Task.WaitAll(insertRequests);
         }
 
         private async Task CreateReviewsIndex()
         {
-            if (IndexExists("review-index")) return;
-            try { _searchCmd.DropIndex("review-index"); } catch { }
-            await _searchCmd.CreateAsync("reviews-index", new FTCreateParams().On(IndexDataType.JSON)
+            if (IndexExists(reviewsIndexName))
+                return;
+            try { _searchCmd.DropIndex(reviewsIndexName ); } catch { }
+            await _searchCmd.CreateAsync(reviewsIndexName, new FTCreateParams().On(IndexDataType.JSON)
                                                     .Prefix("review:"),
                                             new Schema().AddNumericField(new FieldName("$.Id", "id"))
                                                         .AddTextField(new FieldName("$.Comment", "comment"))
                                                         .AddNumericField(new FieldName("$.Rating", "rating"), sortable: true)
                                                         .AddTextField(new FieldName("$.UserId", "userId"))
-                                                        .AddTextField(new FieldName("$.MenuItemId", "menuItemId"))
+                                                        .AddNumericField(new FieldName("$.MenuItemId", "menuItemId"))
+                                                        .AddTextField(new FieldName("$.TimeStamp", "timeStamp"))
                                                         );
         }
 
@@ -94,10 +92,8 @@ namespace Cantina.SyncService
             await CreateMenuIndex();
             var insertRequests = menuItems.Select(item =>
             {
-                var jsonData = JsonSerializer.Serialize(item);
                 return _jsonCmd.SetAsync($"menu:{item.Id}", "$", item);
             }).ToArray();
-
             Task.WaitAll(insertRequests);
         }
 
@@ -121,9 +117,7 @@ namespace Cantina.SyncService
             try
             {
                 var existingIndexes = _searchCmd._List();
-                if(existingIndexes is not null)
-                    return existingIndexes.Any(index => index.ToString() == indexName);
-                return false;
+                return existingIndexes.Any(index => index.ToString() == indexName);
             }
             catch (Exception ex)
             {
