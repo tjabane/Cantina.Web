@@ -16,6 +16,8 @@ using Cantina.Web.Extension;
 using Cantina.Web.Exceptions;
 using System.Threading.RateLimiting;
 using Cantina.Infrastructure.Options;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -92,6 +94,7 @@ builder.Services.AddRateLimiter(options =>
 
 // Open Telemetry
 builder.ConfigOpenTelemetry();
+builder.Services.AddHealthCheck(builder.Configuration);
 
 var app = builder.Build();
 
@@ -104,6 +107,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapHealthChecks(
+    "/health",
+    new HealthCheckOptions
+    {
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
 
 app.UseAuthentication();
 
