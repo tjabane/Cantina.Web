@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Cantina.Domain\Cantina.Domain.csproj" />
     <ProjectReference Include="..\Cantina.Web\Cantina.Web.csproj" />
   </ItemGroup>
 
