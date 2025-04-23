@@ -21,3 +21,11 @@ I used the mediator design pattern and structure the solution by clean architect
 
 ## Observability
 I used Open Telemetry for observability and didnt get the chance to setup the dashboards.
+
+## Use
+Swagger Endpoint: https://localhost:8081/swagger/index.html
+Health Check: https://localhost:8081/health
+
+Admin User
+  "email": "admin@cantina.com",
+  "password": "$400Project"
