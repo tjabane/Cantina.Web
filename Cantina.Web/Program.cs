@@ -123,4 +123,6 @@ app.UseStatusCodePages();
 
 app.MapControllers();
 
+app.MapPrometheusScrapingEndpoint();
+
 app.Run();

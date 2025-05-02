@@ -25,7 +25,8 @@ I used Open Telemetry for observability and didnt get the chance to setup the da
 ## Use
 Swagger Endpoint: https://localhost:8081/swagger/index.html
 Health Check: https://localhost:8081/health
-
+Jaeger: http://localhost:16686/search
+Prometheus: http://localhost:9090/query
 Admin User
   "email": "admin@cantina.com",
   "password": "$400Project"

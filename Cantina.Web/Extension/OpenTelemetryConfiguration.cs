@@ -17,7 +17,12 @@ namespace Cantina.Web.Extension
                     .SetResourceBuilder(
                         ResourceBuilder.CreateDefault()
                             .AddService(applicationName))
-                    .AddConsoleExporter();
+                    .AddConsoleExporter()
+                    .AddOtlpExporter(otlpOptions =>
+                    {
+                        otlpOptions.Endpoint = new Uri(tracingOtlpEndpoint);
+                        otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                    });
             });
             var otel = builder.Services.AddOpenTelemetry();
             otel.ConfigureResource(resource => resource.AddService(serviceName: applicationName));
@@ -28,7 +33,12 @@ namespace Cantina.Web.Extension
                 .AddMeter("System.Net.Http")
                 .AddMeter("System.Net.NameResolution")
                 .AddConsoleExporter()
-                .AddPrometheusExporter());
+                .AddPrometheusExporter()
+                .AddOtlpExporter(otlpOptions =>
+                {
+                    otlpOptions.Endpoint = new Uri(tracingOtlpEndpoint);
+                    otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                }));
             otel.WithTracing(tracing =>
             {
                 tracing.AddAspNetCoreInstrumentation();
