@@ -27,6 +27,7 @@ Swagger Endpoint: https://localhost:8081/swagger/index.html
 Health Check: https://localhost:8081/health
 Jaeger: http://localhost:16686/search
 Prometheus: http://localhost:9090/query
+Grafana: http://localhost:3000/
 Admin User
   "email": "admin@cantina.com",
   "password": "$400Project"

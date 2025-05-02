@@ -60,3 +60,13 @@ services:
       - ./monitoring/otel-collector-config.yaml:/otel-local-config.yaml
     command:
       - '--config=/otel-local-config.yaml'
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
