@@ -18,6 +18,8 @@ using System.Threading.RateLimiting;
 using Cantina.Infrastructure.Options;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Cantina.Web.Configuration;
+using Cantina.Infrastructure.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -39,6 +41,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddSingleton<ReviewsMeter>();
 
 // Databases
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
@@ -105,14 +109,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseMigrations();
 }
-
+app.UseRateLimiter();
 app.UseHttpsRedirection();
-app.MapHealthChecks(
-    "/health",
-    new HealthCheckOptions
-    {
-        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-    });
+app.MapHealthChecks("/health", new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
 
 app.UseAuthentication();
 
