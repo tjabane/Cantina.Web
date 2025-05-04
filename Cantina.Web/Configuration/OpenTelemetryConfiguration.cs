@@ -12,7 +12,6 @@ namespace Cantina.Web.Configuration
         {
             var applicationName = builder.Configuration["ApplicationName"] ?? "The Cantina";
             var tracingOtlpEndpoint = builder.Configuration["OTLP_ENDPOINT_URL"];
-            
             builder.Services.AddOpenTelemetry()
                                 .ConfigureResource(resource => resource.AddService(serviceName: applicationName))
                                 .WithLogging(logging => logging
