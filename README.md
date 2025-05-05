@@ -20,13 +20,47 @@ The menu images will be uploaded to a 3rd party cloud service like azure, aws or
 ## Observability
 ![Observability stack](https://tjabanestorage.blob.core.windows.net/uploads/Cantina%20Metrics.png?sp=r&st=2025-05-05T07:45:20Z&se=2025-08-01T15:45:20Z&spr=https&sv=2024-11-04&sr=b&sig=T0eK%2FRf4DOg7eIWLdAsSj5abqi1MuBeym%2BiJNMXHFR8%3D)
 I used Open Telemetry standard for collecting metrics, traces and logs. Then send them to [Prometheus](https://prometheus.io) for storage and [grafana](https://grafana.com) to build dashboards. 
+The metrics collected are:
 
+- Request Metrics
+- Error Metrics
+- Request Size and Response Size
+- Connection Metrics
+- Request Rate
+- Rate limiting
+- Server health
+- Reviews Count
+
+
+These are useful for 
+- **Monitoring Performance**: Understanding how long requests take and identifying bottlenecks.
+- **Error Tracking**: Monitoring the rate of errors to detect issues in the application.
+- **Traffic Analysis**: Observing the volume of incoming requests and active connections.
+- **Resource usage**: Observe the amount of RAM and CPU been used.
+- **Review Count**: Custom metric that tracked the amount of reviews received.
+
+We can build dashboard like 
+![server dashboard](https://www.mytechramblings.com/img/otel-metrics-runtime-perf-counters-and-process-dashboard.png)
+
+![webapi dashboards](https://www.mytechramblings.com/img/otel-metrics-aspnet-core-metrics-dashboard.png)
 ## Use
-Swagger Endpoint: https://localhost:8081/swagger/index.html
-Health Check: https://localhost:8081/health
-Jaeger: http://localhost:16686/search
-Prometheus: http://localhost:9090/query
-Grafana: http://localhost:3000/
+To start the application run 
+```
+docker-compose up -d 
+```
+Then use the health check endpoint to see if everything is ok: https://localhost:8081/health <br/>
+## Endpoints
+
+- Swagger Endpoint: https://localhost:8081/swagger/index.html
+- Health Check: https://localhost:8081/health
+- Jaeger: http://localhost:16686/search
+- Prometheus: http://localhost:9090/query
+- Grafana: http://localhost:3000/
+
 Admin User
-  "email": "admin@cantina.com",
-  "password": "$400Project"
+  - "email": admin@cantina.com,
+  - "password": $400Project
+
+Grafana user: 
+  - "email": admin
+  - "password": admin
