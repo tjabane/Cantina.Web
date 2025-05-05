@@ -14,8 +14,8 @@ namespace Cantina.Infrastructure.Repository
 {
     public class ReviewRepository(CantinaDbContext context, IConnectionMultiplexer redis, IOptions<RedisOptions> redisOptions, ReviewsMeter reviewsMeter) : IReviewRepository
     {
-        private readonly ReviewsMeter _reviewsMeter = reviewsMeter;
         private readonly CantinaDbContext _context = context;
+        private readonly ReviewsMeter _reviewsMeter = reviewsMeter;
         private readonly string _indexName = redisOptions.Value.ReviewIndex;
         private readonly SearchCommands _searchCommands = redis.GetDatabase().FT();
         public async Task AddReviewAsync(Review review)

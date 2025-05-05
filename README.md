@@ -1,26 +1,25 @@
 # Cantina
 ## Architecture: Async CQRS
-![CQRS Architecture](https://miro.medium.com/v2/resize:fit:551/0*peL7BhC5R4MWoivn.png) 
+![CQRS Architecture](https://tjabanestorage.blob.core.windows.net/uploads/Cantina.drawio.png?sp=r&st=2025-05-05T07:40:45Z&se=2025-08-01T15:40:45Z&spr=https&sv=2024-11-04&sr=b&sig=Y8Y%2FFInYXMGFJb9WTC%2F6Ts8X3kAtmJGlrAXQnmYckwE%3D) 
 
-Since the solution will be running on an old server I decided to implement CQRS design with async communication on commands using [Apache Kafka](https://kafka.apache.org), [Redis](https://redis.io) for read only database and microsoft sql for the storage. The commands will  be written first into the queue and later processed into the database.
-<img src="https://miro.medium.com/v2/resize:fit:1400/1*a_MIJzJQX0St3M9QSDi_Mg.png" width="100%" height="400">
+Since the solution will be running on an old server I decided to implement CQRS design with async communication on commands using [Apache Kafka](https://kafka.apache.org), [Redis](https://redis.io) for NoSql read only database and microsoft sql server for the storage. The commands will  be written first into the queue and later processed into the database.
 The benefits of this design are
 
 - **Decoupling** Adds a buffer between the rest api and the database, making systems more flexible and easier to maintain. 
 
-- **Improved Performance** Allows components to process messages at their own pace, preventing bottlenecks and improving overall system speed. This will allow the database to commit changes without putting too much stress on it. When the traffic is high the message consumer can be turned and all the resources will be on the rest api allowing it to scale.
+- **Improved Performance** Allows components to process messages at their own pace, preventing bottlenecks and improving overall system speed. This will allow the database to commit changes without putting too much stress on it. When the traffic is high the message consumer can be turned off and all the resources will be on the rest api allowing it to scale. Once the traffic slows down the message consumer can be turned on to start processing the messages. Since we the application will be using kafka it can support high thoughput and store messages for as long as needed.
 
 - **Enhanced Reliability** If a component fails, the queue can store messages until it recovers, ensuring data integrity.
 
-- **Read Peformance** Redis stores data in RAM, allowing for sub-millisecond response times, making it significantly faster than disk-based databases. Since the application will be storing menu items and aggragating the reviews, the amount of ram used will be small.
+- **Read Peformance** Redis stores data in memory, allowing for sub-millisecond response times, making it significantly faster than disk-based databases. . Redis allows us to reduce the load on a primary database while speeding up database reads. Reducing the load on the database and been efficient.
 
+### Images
+The menu images will be uploaded to a 3rd party cloud service like azure, aws or google.What will be stored in the database will be the image url. This approach will reducing the load on the server from reading images from storage or database into memory avoiding further stress on the old hardware. One of the benefits of this is using cloud CDN to cache images closer to our clients and hence improve the performance of the application.
 
-## Project Design
-I used the mediator design pattern and structure the solution by clean architecture.
-![Clean architecture](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
 
 ## Observability
-I used Open Telemetry for observability and didnt get the chance to setup the dashboards.
+![Observability stack](https://tjabanestorage.blob.core.windows.net/uploads/Cantina%20Metrics.png?sp=r&st=2025-05-05T07:45:20Z&se=2025-08-01T15:45:20Z&spr=https&sv=2024-11-04&sr=b&sig=T0eK%2FRf4DOg7eIWLdAsSj5abqi1MuBeym%2BiJNMXHFR8%3D)
+I used Open Telemetry standard for collecting metrics, traces and logs. Then send them to [Prometheus](https://prometheus.io) for storage and [grafana](https://grafana.com) to build dashboards. 
 
 ## Use
 Swagger Endpoint: https://localhost:8081/swagger/index.html
