@@ -1,4 +1,5 @@
 # Cantina
+![Star Wars](https://i.giphy.com/l3fZEXqPPadtqMRyM.webp)
 ## Architecture: Async CQRS
 ![CQRS Architecture](https://tjabanestorage.blob.core.windows.net/uploads/Cantina.drawio.png?sp=r&st=2025-05-05T07:40:45Z&se=2025-08-01T15:40:45Z&spr=https&sv=2024-11-04&sr=b&sig=Y8Y%2FFInYXMGFJb9WTC%2F6Ts8X3kAtmJGlrAXQnmYckwE%3D) 
 
@@ -58,7 +59,7 @@ Then use the health check endpoint to see if everything is ok: https://localhost
 - Grafana: http://localhost:3000/
 
 Admin User
-  - "email": admin@cantina.com,
+  - "email": admin@cantina.com
   - "password": $400Project
 
 Grafana user: 
