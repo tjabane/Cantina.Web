@@ -1,6 +1,7 @@
 ﻿using Cantina.Domain.Entities;
 using Cantina.Domain.Repositories;
 using Cantina.Infrastructure.Database;
+using Cantina.Infrastructure.Metrics;
 using Cantina.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using NRedisStack;
@@ -11,14 +12,16 @@ using System.Text.Json;
 
 namespace Cantina.Infrastructure.Repository
 {
-    public class ReviewRepository(CantinaDbContext context, IConnectionMultiplexer redis, IOptions<RedisOptions> redisOptions) : IReviewRepository
+    public class ReviewRepository(CantinaDbContext context, IConnectionMultiplexer redis, IOptions<RedisOptions> redisOptions, ReviewsMeter reviewsMeter) : IReviewRepository
     {
         private readonly CantinaDbContext _context = context;
+        private readonly ReviewsMeter _reviewsMeter = reviewsMeter;
         private readonly string _indexName = redisOptions.Value.ReviewIndex;
         private readonly SearchCommands _searchCommands = redis.GetDatabase().FT();
         public async Task AddReviewAsync(Review review)
         {
             await _context.Reviews.AddAsync(review);
+            _reviewsMeter.IncrementReviewsAddedCounter();
         }
 
         public async Task<List<Review>> GetAllReviewsAsync()
